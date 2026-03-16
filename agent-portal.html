@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProfitLink — Agent Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A84C;--gold2:#E8C96A;--dark:#0A0A0F;--dark2:#12121A;--dark3:#1A1A26;--dark4:#22222F;--white:#F0EEE8;--gray:#888899;--green:#2ECC71;--red:#E74C3C;--accent:#2A6EBB}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--dark);color:var(--white);font-family:'Outfit',sans-serif;min-height:100vh}
+.bg-glow1{position:fixed;top:-20%;right:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+.bg-glow2{position:fixed;bottom:-10%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(42,110,187,0.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+.bg-grid{position:fixed;inset:0;opacity:0.02;background-image:linear-gradient(rgba(201,168,76,1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,1) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+
+/* ── LOGIN PAGE ── */
+#login-page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;background:var(--dark)}
+.login-card{position:relative;z-index:10;background:var(--dark2);border:1px solid rgba(201,168,76,0.15);border-radius:24px;width:100%;max-width:420px;padding:48px 40px;box-shadow:0 40px 80px rgba(0,0,0,0.5);margin:20px}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),transparent);border-radius:24px 24px 0 0}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:4px;color:var(--gold);text-align:center;line-height:1}
+.login-sub{font-size:10px;letter-spacing:3px;color:rgba(201,168,76,0.45);text-transform:uppercase;text-align:center;margin-top:4px}
+.login-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:50px;padding:6px 16px;font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin:20px auto 32px;display:flex;width:fit-content}
+.form-group{margin-bottom:18px}
+.form-label{font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:8px;display:block}
+.form-input{width:100%;background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 18px;color:var(--white);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.3s}
+.form-input:focus{border-color:rgba(201,168,76,0.4)}
+.form-input::placeholder{color:var(--gray)}
+.btn-gold{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--dark);border:none;padding:14px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;margin-top:8px}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.3)}
+.login-error{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.login-footer{text-align:center;margin-top:24px;font-size:12px;color:var(--gray)}
+.login-footer a{color:var(--gold);text-decoration:none}
+
+/* ── DASHBOARD ── */
+#dashboard-page{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--dark2);border-right:1px solid rgba(201,168,76,0.1);padding:32px 0;z-index:50;display:flex;flex-direction:column}
+.sidebar-logo{padding:0 24px 32px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sidebar-logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
+.sidebar-logo-sub{font-size:10px;letter-spacing:2px;color:rgba(201,168,76,0.4);text-transform:uppercase;margin-top:2px}
+.sidebar-agent{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.agent-avatar{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--dark);margin-bottom:10px}
+.agent-name{font-weight:700;font-size:15px}
+.agent-tier{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-top:2px}
+.sidebar-nav{flex:1;padding:20px 12px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:background 0.2s;color:var(--gray);font-size:14px;font-weight:500;margin-bottom:4px}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--white)}
+.nav-item.active{background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.2)}
+.nav-icon{font-size:18px;width:24px;text-align:center}
+.sidebar-footer{padding:20px 24px;border-top:1px solid rgba(255,255,255,0.05)}
+.logout-btn{display:flex;align-items:center;gap:10px;color:var(--gray);cursor:pointer;font-size:13px;transition:color 0.2s}
+.logout-btn:hover{color:var(--red)}
+.main-content{margin-left:260px;padding:32px;min-height:100vh}
+.page-header{margin-bottom:32px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px}
+.page-sub{font-size:13px;color:var(--gray);margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:var(--dark2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px}
+.card-gold{background:var(--dark2);border:1px solid rgba(201,168,76,0.2);border-radius:16px;padding:24px;position:relative;overflow:hidden}
+.card-gold::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2),transparent)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:10px}
+.stat-value{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);line-height:1}
+.stat-value.gold{color:var(--gold)}
+.stat-value.green{color:var(--green)}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+/* ── REFERRAL BOX ── */
+.ref-box{background:var(--dark3);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}
+.ref-link{font-size:13px;color:var(--gold);word-break:break-all;flex:1;font-family:monospace}
+.copy-btn{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:background 0.2s}
+.copy-btn:hover{background:rgba(201,168,76,0.2)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;padding:12px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+td{padding:14px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--white)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;padding:4px 10px;border-radius:50px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.badge-green{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3)}
+.badge-yellow{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+.badge-red{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3)}
+
+/* ── WITHDRAW FORM ── */
+.withdraw-card{max-width:520px}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.method-btn{background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:600}
+.method-btn:hover,.method-btn.selected{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.4);color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.submit-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--dark);border:none;padding:14px 32px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:transform 0.2s;margin-top:8px}
+.submit-btn:hover{transform:translateY(-2px)}
+
+/* ── PAGE SECTIONS ── */
+.section{display:none}
+.section.active{display:block}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .main-content{margin-left:0;padding:20px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="bg-glow1"></div>
+<div class="bg-glow2"></div>
+<div class="bg-grid"></div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">PROFITLINK</div>
+    <div class="login-sub">by Shadow Agency</div>
+    <div class="login-badge">🤝 Agent Portal</div>
+    <div class="login-error" id="login-error">Invalid username or password. Please try again.</div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" class="form-input" id="username" placeholder="Enter your username" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="password" placeholder="Enter your password">
+    </div>
+    <button class="btn-gold" onclick="doLogin()">Login to Portal</button>
+    <div class="login-footer">
+      Need an account? <a href="https://t.me/ProfitLinkOfficialBot" target="_blank">Contact Support</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="dashboard-page">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">PROFITLINK</div>
+      <div class="sidebar-logo-sub">Agent Portal</div>
+    </div>
+    <div class="sidebar-agent">
+      <div class="agent-avatar" id="agent-avatar">A</div>
+      <div class="agent-name" id="agent-name-display">Agent</div>
+      <div class="agent-tier" id="agent-tier-display">⭐ Starter Agent</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('overview')"><span class="nav-icon">📊</span> Overview</div>
+      <div class="nav-item" onclick="showSection('referral')"><span class="nav-icon">🔗</span> My Referral Link</div>
+      <div class="nav-item" onclick="showSection('clients')"><span class="nav-icon">👥</span> My Clients</div>
+      <div class="nav-item" onclick="showSection('commission')"><span class="nav-icon">💰</span> Commission</div>
+      <div class="nav-item" onclick="showSection('withdraw')"><span class="nav-icon">💸</span> Withdraw</div>
+      <div class="nav-item" onclick="showSection('support')"><span class="nav-icon">💬</span> Support</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="doLogout()">🚪 Logout</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- OVERVIEW -->
+    <div class="section active" id="sec-overview">
+      <div class="page-header">
+        <div class="page-title">DASHBOARD OVERVIEW</div>
+        <div class="page-sub" id="welcome-msg">Welcome back!</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Clients</div>
+          <div class="stat-value" id="stat-clients">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Traders</div>
+          <div class="stat-value green" id="stat-active">0</div>
+          <div class="stat-sub">Currently trading</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Commission</div>
+          <div class="stat-value gold" id="stat-commission">$0</div>
+          <div class="stat-sub">All time earnings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Payout</div>
+          <div class="stat-value gold" id="stat-pending">$0</div>
+          <div class="stat-sub">Awaiting payment</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card-gold">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:16px">Your Commission Tier</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--gold);line-height:1" id="tier-pct">20%</div>
+          <div style="font-size:13px;color:var(--gray);margin-top:6px" id="tier-name">Starter Agent — Earn 20% of profit share</div>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--dark3);border-radius:8px;font-size:12px"><span>🥉 Starter</span><span style="color:var(--gold)">20%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--dark3);border-radius:8px;font-size:12px"><span>🥈 Silver</span><span style="color:var(--gold)">30%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--dark3);border-radius:8px;font-size:12px"><span>🥇 Gold</span><span style="color:var(--gold)">40%</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:16px">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <button onclick="showSection('referral')" style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:12px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left">🔗 Copy My Referral Link</button>
+            <button onclick="showSection('clients')" style="background:var(--dark3);border:1px solid rgba(255,255,255,0.08);color:var(--white);padding:12px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left">👥 View My Clients</button>
+            <button onclick="showSection('withdraw')" style="background:var(--dark3);border:1px solid rgba(255,255,255,0.08);color:var(--white);padding:12px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left">💸 Request Withdrawal</button>
+            <a href="https://shadowagencypk.com" target="_blank" style="background:var(--dark3);border:1px solid rgba(255,255,255,0.08);color:var(--white);padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;display:block">🌐 Visit Main Website</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRAL LINK -->
+    <div class="section" id="sec-referral">
+      <div class="page-header">
+        <div class="page-title">MY REFERRAL LINK</div>
+        <div class="page-sub">Share this link with potential clients to earn commission</div>
+      </div>
+      <div class="card-gold" style="margin-bottom:20px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:8px">Your Deriv Partner Link</div>
+        <div style="font-size:13px;color:var(--gray);margin-bottom:16px">When clients signup through your link and trade, Deriv pays you commission directly.</div>
+        <div class="ref-box">
+          <div class="ref-link" id="ref-link-display">Loading...</div>
+          <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+        </div>
+        <div style="margin-top:16px;font-size:12px;color:var(--gray)">✅ Share on WhatsApp, Telegram, Facebook or any platform</div>
+      </div>
+      <div class="grid3">
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">🔗</div>
+          <div style="font-weight:700;margin-bottom:6px">Share the Link</div>
+          <div style="font-size:12px;color:var(--gray)">Share your referral link on social media or directly with potential clients</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📝</div>
+          <div style="font-weight:700;margin-bottom:6px">Client Signs Up</div>
+          <div style="font-size:12px;color:var(--gray)">Client creates Deriv account using your link — automatically tracked</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">💰</div>
+          <div style="font-weight:700;margin-bottom:6px">Earn Commission</div>
+          <div style="font-size:12px;color:var(--gray)">Client trades = you earn commission based on your tier percentage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="section" id="sec-clients">
+      <div class="page-header">
+        <div class="page-title">MY CLIENTS</div>
+        <div class="page-sub">All clients referred through your link</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase">Client List</div>
+          <div style="font-size:12px;color:var(--gray)">Total: <span id="total-clients-count" style="color:var(--white);font-weight:600">0</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Client Name</th>
+                <th>Joined Date</th>
+                <th>Status</th>
+                <th>Trading Volume</th>
+                <th>Your Commission</th>
+              </tr>
+            </thead>
+            <tbody id="clients-table">
+              <tr><td colspan="5" style="text-align:center;color:var(--gray);padding:40px">No clients yet. Share your referral link to get started!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMISSION -->
+    <div class="section" id="sec-commission">
+      <div class="page-header">
+        <div class="page-title">COMMISSION HISTORY</div>
+        <div class="page-sub">Track all your earnings</div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card">
+          <div class="stat-label">This Month</div>
+          <div class="stat-value gold" id="comm-month">$0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Earned</div>
+          <div class="stat-value gold" id="comm-total">$0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Payout</div>
+          <div class="stat-value green" id="comm-pending">$0</div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:16px">Transaction History</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Client</th><th>Trading Volume</th><th>Commission %</th><th>Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="commission-table">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:40px">No commission records yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="section" id="sec-withdraw">
+      <div class="page-header">
+        <div class="page-title">WITHDRAW REQUEST</div>
+        <div class="page-sub">Request payout of your earned commission</div>
+      </div>
+      <div class="grid2">
+        <div class="withdraw-card card-gold">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:20px">Request Withdrawal</div>
+          <div style="margin-bottom:20px">
+            <div style="font-size:11px;letter-spacing:1px;color:var(--gray);text-transform:uppercase;margin-bottom:10px">Payment Method</div>
+            <div class="method-grid">
+              <div class="method-btn" onclick="selectMethod(this,'USDT TRC20')">💎 USDT TRC20</div>
+              <div class="method-btn" onclick="selectMethod(this,'Binance Pay')">🟡 Binance Pay</div>
+              <div class="method-btn" onclick="selectMethod(this,'Perfect Money')">💚 Perfect Money</div>
+              <div class="method-btn" onclick="selectMethod(this,'Bank Transfer')">🏦 Bank Transfer</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount (USD)</label>
+            <input type="number" class="form-input" id="withdraw-amount" placeholder="Minimum $10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wallet / Account Details</label>
+            <input type="text" class="form-input" id="withdraw-wallet" placeholder="Enter wallet address or account number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Note (Optional)</label>
+            <input type="text" class="form-input" id="withdraw-note" placeholder="Any additional info">
+          </div>
+          <button class="submit-btn" onclick="submitWithdraw()">Submit Withdrawal Request</button>
+          <div style="margin-top:12px;font-size:11px;color:var(--gray)">⏱ Processing time: 24-48 hours | Min withdrawal: $10</div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:16px">Withdrawal History</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+              <tbody id="withdraw-table">
+                <tr><td colspan="4" style="text-align:center;color:var(--gray);padding:30px">No withdrawal requests yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPPORT -->
+    <div class="section" id="sec-support">
+      <div class="page-header">
+        <div class="page-title">SUPPORT</div>
+        <div class="page-sub">Get help from the ProfitLink team</div>
+      </div>
+      <div class="grid2">
+        <div class="card-gold">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:20px">Contact Us</div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;gap:14px;align-items:center">
+              <div style="width:44px;height:44px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">📱</div>
+              <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px">WhatsApp</div><div style="font-weight:600">+92 313 691 4073</div></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:center">
+              <div style="width:44px;height:44px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">✈️</div>
+              <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Telegram</div><div style="font-weight:600">@ProfitLinkOfficialBot</div></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:center">
+              <div style="width:44px;height:44px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">📧</div>
+              <div><div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Email</div><div style="font-weight:600"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0555776a636c71696c6b6e45766d64616a726462606b667c756e2b666a68">[email&#160;protected]</a></div></div>
+            </div>
+          </div>
+          <div style="margin-top:24px;display:flex;gap:12px">
+            <a href="https://wa.me/923136914073" target="_blank" style="flex:1;background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);color:#25D366;padding:12px;border-radius:10px;text-align:center;text-decoration:none;font-size:13px;font-weight:600">WhatsApp</a>
+            <a href="https://t.me/ProfitLinkOfficialBot" target="_blank" style="flex:1;background:rgba(34,158,217,0.1);border:1px solid rgba(34,158,217,0.3);color:#229ED9;padding:12px;border-radius:10px;text-align:center;text-decoration:none;font-size:13px;font-weight:600">Telegram</a>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;margin-bottom:16px">Important Info</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="background:var(--dark3);border-radius:10px;padding:14px"><div style="font-weight:600;font-size:13px;margin-bottom:4px">Commission Payment</div><div style="font-size:12px;color:var(--gray)">Payments processed every month. Min $10 to withdraw.</div></div>
+            <div style="background:var(--dark3);border-radius:10px;padding:14px"><div style="font-weight:600;font-size:13px;margin-bottom:4px">Tier Upgrade</div><div style="font-size:12px;color:var(--gray)">Bring more clients to upgrade from Starter to Silver to Gold.</div></div>
+            <div style="background:var(--dark3);border-radius:10px;padding:14px"><div style="font-weight:600;font-size:13px;margin-bottom:4px">Disclaimer</div><div style="font-size:12px;color:var(--gray)">We are not a broker. All trading accounts are with Deriv. Trading involves risk.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── AGENT DATA (demo accounts — replace with backend later) ──
+const SHARED_KEY = "pl_shared_agents";
+let currentAgent = null;
+let selectedMethod = "";
+
+function getAgents() {
+  try {
+    const d = localStorage.getItem(SHARED_KEY);
+    if (d) return JSON.parse(d);
+  } catch {}
+  // Fallback demo agents if admin hasn't set up yet
+  return [
+    { id:"a1", name:"Ahmed Ali",   username:"agent001", password:"pass123",  tier:"Starter", pct:20, totalEarned:240,  pending:80,  status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent001" },
+    { id:"a2", name:"Sara Khan",   username:"agent002", password:"silver22", tier:"Silver",  pct:30, totalEarned:920,  pending:210, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent002" },
+    { id:"a3", name:"Umar Farooq", username:"agent003", password:"gold999",  tier:"Gold",    pct:40, totalEarned:3400, pending:680, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent003" },
+  ];
+}
+
+function doLogin() {
+  const u   = document.getElementById("username").value.trim().toLowerCase();
+  const p   = document.getElementById("password").value.trim();
+  const err = document.getElementById("login-error");
+  const agents = getAgents();
+  const found  = agents.find(a => a.username.toLowerCase() === u && a.password === p && a.status === "Active");
+
+  if (found) {
+    currentAgent = { ...found };
+    err.style.display = "none";
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("dashboard-page").style.display = "block";
+    loadDashboard();
+  } else {
+    err.style.display = "block";
+  }
+}
+
+// Enter key login
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("login-page").style.display !== "none") doLogin();
+});
+
+function loadDashboard() {
+  const a = currentAgent;
+  // Sidebar
+  document.getElementById("agent-avatar").textContent = a.name.charAt(0);
+  document.getElementById("agent-name-display").textContent = a.name;
+  const tierEmoji = a.tier === "Gold" ? "🥇" : a.tier === "Silver" ? "🥈" : "🥉";
+  document.getElementById("agent-tier-display").textContent = `${tierEmoji} ${a.tier} Agent`;
+
+  // Stats
+  document.getElementById("welcome-msg").textContent = `Welcome back, ${a.name}! Here's your performance overview.`;
+  document.getElementById("stat-clients").textContent = a.clients;
+  document.getElementById("stat-active").textContent = a.active;
+  document.getElementById("stat-commission").textContent = `$${a.commission.toLocaleString()}`;
+  document.getElementById("stat-pending").textContent = `$${a.pending.toLocaleString()}`;
+  document.getElementById("tier-pct").textContent = `${a.pct}%`;
+  document.getElementById("tier-name").textContent = `${a.tier} Agent — Earn ${a.pct}% of profit share`;
+
+  // Referral
+  document.getElementById("ref-link-display").textContent = a.refLink;
+
+  // Commission stats
+  document.getElementById("comm-month").textContent = `$${Math.round(a.commission * 0.3).toLocaleString()}`;
+  document.getElementById("comm-total").textContent = `$${a.commission.toLocaleString()}`;
+  document.getElementById("comm-pending").textContent = `$${a.pending.toLocaleString()}`;
+
+  document.getElementById("total-clients-count").textContent = a.clients;
+}
+
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("sec-" + id).classList.add("active");
+  event.currentTarget.classList.add("active");
+}
+
+function copyRef() {
+  const link = document.getElementById("ref-link-display").textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = "✅ Copied!";
+    setTimeout(() => btn.textContent = "📋 Copy", 2000);
+  });
+}
+
+function selectMethod(el, method) {
+  document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedMethod = method;
+}
+
+function submitWithdraw() {
+  const amount = document.getElementById("withdraw-amount").value;
+  const wallet = document.getElementById("withdraw-wallet").value;
+
+  if (!selectedMethod) { alert("Please select a payment method!"); return; }
+  if (!amount || amount < 10) { alert("Minimum withdrawal amount is $10!"); return; }
+  if (!wallet) { alert("Please enter your wallet/account details!"); return; }
+
+  const tbody = document.getElementById("withdraw-table");
+  const today = new Date().toLocaleDateString("en-GB");
+  tbody.innerHTML = `<tr>
+    <td>${today}</td>
+    <td style="color:var(--gold);font-weight:600">$${parseFloat(amount).toFixed(2)}</td>
+    <td>${selectedMethod}</td>
+    <td><span class="badge badge-yellow">Pending</span></td>
+  </tr>` + (tbody.innerHTML.includes("No withdrawal") ? "" : tbody.innerHTML);
+
+  document.getElementById("withdraw-amount").value = "";
+  document.getElementById("withdraw-wallet").value = "";
+  document.getElementById("withdraw-note").value = "";
+  document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("selected"));
+  selectedMethod = "";
+
+  alert("✅ Withdrawal request submitted! Team will process within 24-48 hours.");
+}
+
+function doLogout() {
+  currentAgent = null;
+  document.getElemen

@@ -419,9 +419,9 @@ function getAgents() {
   } catch {}
   // Fallback demo agents if admin hasn't set up yet
   return [
-    { id:"a1", name:"Ahmed Ali",   username:"agent001", password:"pass123",  tier:"Starter", pct:20, totalEarned:240,  pending:80,  status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent001" },
-    { id:"a2", name:"Sara Khan",   username:"agent002", password:"silver22", tier:"Silver",  pct:30, totalEarned:920,  pending:210, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent002" },
-    { id:"a3", name:"Umar Farooq", username:"agent003", password:"gold999",  tier:"Gold",    pct:40, totalEarned:3400, pending:680, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent003" },
+    { id:"a1", name:"Ahmed Ali",   username:"agent001", password:"pass123",  tier:"Starter", pct:20, clients:12, active:7,  commission:240,  totalEarned:240,  pending:80,  status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent001" },
+    { id:"a2", name:"Sara Khan",   username:"agent002", password:"silver22", tier:"Silver",  pct:30, clients:25, active:18, commission:920,  totalEarned:920,  pending:210, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent002" },
+    { id:"a3", name:"Umar Farooq", username:"agent003", password:"gold999",  tier:"Gold",    pct:40, clients:58, active:41, commission:3400, totalEarned:3400, pending:680, status:"Active", refLink:"https://deriv.partners/rx?sidc=DE74B584-0EE2-4CF1-8AA1-45AB52944CF9&utm_source=agent003" },
   ];
 }
 
@@ -459,22 +459,22 @@ function loadDashboard() {
 
   // Stats
   document.getElementById("welcome-msg").textContent = `Welcome back, ${a.name}! Here's your performance overview.`;
-  document.getElementById("stat-clients").textContent = a.clients;
-  document.getElementById("stat-active").textContent = a.active;
-  document.getElementById("stat-commission").textContent = `$${a.commission.toLocaleString()}`;
-  document.getElementById("stat-pending").textContent = `$${a.pending.toLocaleString()}`;
-  document.getElementById("tier-pct").textContent = `${a.pct}%`;
-  document.getElementById("tier-name").textContent = `${a.tier} Agent — Earn ${a.pct}% of profit share`;
+  document.getElementById("stat-clients").textContent = a.clients || 0;
+  document.getElementById("stat-active").textContent = a.active || 0;
+  document.getElementById("stat-commission").textContent = "$" + (a.commission || a.totalEarned || 0).toLocaleString();
+  document.getElementById("stat-pending").textContent = "$" + (a.pending || 0).toLocaleString();
+  document.getElementById("tier-pct").textContent = a.pct + "%";
+  document.getElementById("tier-name").textContent = a.tier + " Agent — Earn " + a.pct + "% of profit share";
 
   // Referral
-  document.getElementById("ref-link-display").textContent = a.refLink;
+  document.getElementById("ref-link-display").textContent = a.refLink || "";
 
   // Commission stats
-  document.getElementById("comm-month").textContent = `$${Math.round(a.commission * 0.3).toLocaleString()}`;
-  document.getElementById("comm-total").textContent = `$${a.commission.toLocaleString()}`;
-  document.getElementById("comm-pending").textContent = `$${a.pending.toLocaleString()}`;
+  document.getElementById("comm-month").textContent = "$" + Math.round((a.commission || 0) * 0.3).toLocaleString();
+  document.getElementById("comm-total").textContent = "$" + (a.commission || 0).toLocaleString();
+  document.getElementById("comm-pending").textContent = "$" + (a.pending || 0).toLocaleString();
 
-  document.getElementById("total-clients-count").textContent = a.clients;
+  document.getElementById("total-clients-count").textContent = a.clients || 0;
 }
 
 function showSection(id) {

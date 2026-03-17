@@ -153,7 +153,18 @@ footer{background:var(--dark2);border-top:1px solid rgba(201,168,76,0.1);padding
 <body>
 
 <nav>
-  <a href="#home" class="nav-logo">PROFITLINK</a>
+  <a href="#home" class="nav-logo" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <svg width="120" height="32" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="ng1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#C9A84C"/><stop offset="100%" style="stop-color:#E8C96A"/></linearGradient></defs>
+      <rect x="0" y="10" width="6" height="80" fill="url(#ng1)" rx="3"/>
+      <rect x="0" y="10" width="42" height="6" fill="url(#ng1)" rx="3"/>
+      <rect x="36" y="10" width="6" height="42" fill="url(#ng1)" rx="3"/>
+      <rect x="0" y="46" width="42" height="6" fill="url(#ng1)" rx="3"/>
+      <rect x="14" y="70" width="8" height="20" fill="url(#ng1)" opacity=".4" rx="2"/>
+      <rect x="24" y="60" width="8" height="30" fill="url(#ng1)" opacity=".6" rx="2"/>
+      <text x="58" y="66" font-family="'Bebas Neue',sans-serif" font-size="56" fill="url(#ng1)" letter-spacing="3">PROFITLINK</text>
+    </svg>
+  </a>
   <ul class="nav-links">
     <li><a href="#how">How It Works</a></li>
     <li><a href="#performance">Performance</a></li>
